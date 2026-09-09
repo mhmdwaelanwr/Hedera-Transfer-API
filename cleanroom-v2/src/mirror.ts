@@ -68,9 +68,22 @@ export async function getAccountHistory(accountId: string, limit: number) {
   );
 }
 
+function normalizeTransactionId(transactionId: string) {
+  if (!transactionId.includes("@")) return transactionId;
+
+  const [accountId, timestamp] = transactionId.split("@", 2);
+  if (!accountId || !timestamp) return transactionId;
+
+  const dot = timestamp.indexOf(".");
+  if (dot < 0) return transactionId;
+
+  const seconds = timestamp.slice(0, dot);
+  const nanos = timestamp.slice(dot + 1);
+  return `${accountId}-${seconds}-${nanos}`;
+}
+
 export async function getTransaction(transactionId: string) {
-  const normalized = transactionId.replace(/@/g, "-").replace(/\./g, "-");
   return mirrorFetch<unknown>(
-    `/api/v1/transactions/${encodeURIComponent(normalized)}`,
+    `/api/v1/transactions/${encodeURIComponent(normalizeTransactionId(transactionId))}`,
   );
 }
