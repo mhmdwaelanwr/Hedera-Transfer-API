@@ -1,0 +1,23 @@
+name: Clean-room v2 validation
+
+on:
+  push:
+    branches:
+      - rebuild/owner-clean-v2
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cleanroom-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
